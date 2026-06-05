@@ -1,23 +1,40 @@
-# JAgent Workbench
+# Asteria
 
-JAgent Workbench is a Spring Boot based AI Agent workbench for experimenting with
-agent runtime, tool calling, RAG search, MCP integration, and local knowledge
-workflows. It includes a Java backend, static web workspaces, PostgreSQL-backed
-chat/agent/knowledge modules, and optional integrations such as Notion sync,
-watermark tools, and content workflow tools.
+Asteria is an AI agent workbench for research reading, local knowledge workflows,
+and tool-augmented assistance.
 
-## Features
+It brings together a Spring AI based backend agent runtime, RAG-powered document
+search, MCP tool integration, Markdown note workflows, and lightweight browser
+workspaces. The project is built as a practical laboratory for turning "chat
+with a model" into "let an agent search, call tools, observe results, and keep
+working".
 
-- **Agent runtime**: `Agent + Runtime + Tool` execution chain with a bounded
-  think-execute-reply loop.
-- **Tool calling**: local Java tools and external MCP tools share a unified
-  registration and invocation path.
-- **RAG knowledge search**: document storage, chunking, embedding, pgvector
-  similarity search, and `knowledge_query` tool integration.
-- **Markdown / Notion workflow**: scan local Markdown notes, parse frontmatter,
-  create or update Notion pages, and write `notion_page_id` back to local notes.
-- **Static workspaces**: browser pages for login, chat, agent chat, research
-  agent, image/watermark agent, workspace, and content workflow experiments.
+## What Asteria Does
+
+- **Research agent**: retrieve documents with vector search, summarize context,
+  and use knowledge snippets inside an agent loop.
+- **Tool calling**: expose local Java tools and external MCP tools through one
+  runtime path.
+- **Notes workflow**: scan Markdown notes, parse frontmatter, sync pages to
+  Notion, and write stable page IDs back to local files.
+- **Agent workspace**: provide static web pages for chat, agent chat, research,
+  workspace sync, and image/watermark tool experiments.
+
+## Architecture
+
+```text
+User workspace
+    |
+    v
+Spring Boot backend
+    |
+    +-- Agent runtime: Agent + Runtime + Tool
+    +-- Spring AI chat clients
+    +-- PostgreSQL / pgvector knowledge search
+    +-- Redis-backed verification flow
+    +-- Local tools and MCP tool bridge
+    +-- Static browser workspaces
+```
 
 ## Tech Stack
 
@@ -29,11 +46,11 @@ watermark tools, and content workflow tools.
 - JWT
 - Maven multi-module project
 
-## Project Structure
+## Repository Layout
 
 ```text
 .
-├── backend      # Spring Boot API + static web pages
+├── backend      # Spring Boot API and static workspace pages
 ├── tool-core    # Shared tool protocol and runtime abstractions
 ├── mcp-server   # Standalone MCP server module
 └── sql          # Database schema and seed scripts
@@ -41,17 +58,17 @@ watermark tools, and content workflow tools.
 
 ## Configuration
 
-Copy the example environment file and fill in local values:
+Copy the example file and fill in your local values:
 
 ```bash
 cp .env.example .env
 ```
 
-The application reads secrets from environment variables. Do not commit real API
-keys, database passwords, mail authorization codes, Notion tokens, cookies, or
-MCP credentials.
+Asteria reads secrets from environment variables. Keep real API keys, database
+passwords, mail authorization codes, Notion tokens, cookies, and MCP credentials
+out of version control.
 
-Important variables:
+Common variables:
 
 - `JAGENT_DB_URL`, `JAGENT_DB_USERNAME`, `JAGENT_DB_PASSWORD`
 - `JAGENT_REDIS_HOST`, `JAGENT_REDIS_PORT`
@@ -61,17 +78,15 @@ Important variables:
 
 ## Run Locally
 
-Start PostgreSQL and Redis first, then initialize the database with scripts in
-`sql/` as needed.
-
-Run the backend:
+Start PostgreSQL and Redis first, then initialize the database with the scripts
+under `sql/` as needed.
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-Default server:
+Default entry:
 
 ```text
 http://127.0.0.1:8081/
@@ -79,15 +94,16 @@ http://127.0.0.1:8081/
 
 Useful pages:
 
-- `/` - login / entry page
+- `/` - login and entry page
 - `/chat.html` - basic chat
 - `/agent-chat.html` - agent chat workspace
 - `/research-agent.html` - research agent page
-- `/workspace.html` - local workspace / notes sync page
-- `/image-agent.html` - image / watermark agent page
+- `/workspace.html` - local workspace and notes sync
+- `/image-agent.html` - image and watermark agent page
 
-## Notes
+## Status
 
-This project is an experimental workbench. Some optional abilities depend on
-external services such as LLM providers, Ollama embeddings, Notion, and MCP
-servers. Keep those credentials and runtime data outside version control.
+Asteria is a personal research and engineering workbench. Some features require
+external services such as LLM providers, Ollama embeddings, Notion, or MCP
+servers. The repository keeps those integrations configurable rather than
+hard-coded.
