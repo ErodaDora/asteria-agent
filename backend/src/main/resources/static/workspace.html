@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ★ 项目名称可在此处手动修改（同时修改下方 sidebar-brand 的文字） -->
+    <title>Navi · Workspace</title>
+    <link rel="stylesheet" href="/workspace.css">
+</head>
+<body>
+
+<!-- ══════════ Sidebar ══════════ -->
+<nav class="sidebar">
+
+    <div class="sidebar-brand">
+        <span class="logo-pill">
+            <img class="brand-symbol" src="/assets/reference-icons/website-filled.svg" alt="">
+            <!-- ★ 项目名称 -->
+            Navi
+        </span>
+    </div>
+
+    <div class="sidebar-nav">
+        <button class="nav-item active" type="button">
+            <img class="nav-symbol" src="/assets/reference-icons/website-filled.svg" alt="">
+            Workspace
+        </button>
+        <button class="nav-item" type="button" id="navChatButton">
+            <img class="nav-symbol" src="/assets/reference-icons/about-filled.svg" alt="">
+            Chat
+        </button>
+        <button class="nav-item" type="button" id="navAgentButton">
+            <img class="nav-symbol" src="/assets/reference-icons/projects-filled.svg" alt="">
+            Pilot
+        </button>
+        <button class="nav-item" type="button" id="navResearchAgentButton" onclick="window.location.href='/research-agent.html'">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7" cy="7" r="4.5"/>
+                <path d="M10.5 10.5L14 14"/>
+            </svg>
+            Research Agent
+        </button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-sections">
+        <div class="section-label">会话</div>
+        <div id="sidebarSessionList"></div>
+        <button id="newChatButton" class="new-item-btn" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="1.8" stroke-linecap="round">
+                <path d="M8 3v10M3 8h10"/>
+            </svg>
+            新建会话
+        </button>
+
+        <div class="sidebar-divider" style="margin:6px 2px"></div>
+
+        <div class="section-label">任务</div>
+        <div id="sidebarAgentList"></div>
+    </div>
+
+    <div class="sidebar-footer">
+        <div id="userAvatar" class="user-avatar">…</div>
+        <div class="user-meta">
+            <div id="userName" class="user-name">加载中…</div>
+            <div id="userEmail" class="user-email"></div>
+        </div>
+        <button id="logoutButton" class="logout-btn" type="button" title="退出登录">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 3h3a1 1 0 011 1v8a1 1 0 01-1 1h-3M6.5 11L3 8l3.5-3M3 8h8"/>
+            </svg>
+        </button>
+    </div>
+
+</nav>
+
+<!-- ══════════ Main Content ══════════ -->
+<div class="main-content">
+
+    <!-- Cover（全宽） -->
+    <div class="cover-wrapper">
+        <div class="cover-bg" id="coverBg"></div>
+        <div class="cover-controls">
+            <button class="cover-btn" id="changeCoverBtn" type="button">更换封面</button>
+            <button class="cover-btn cover-btn-secondary" id="removeCoverBtn" type="button">移除</button>
+        </div>
+        <div class="cover-bottom">
+            <div class="page-icon" id="pageAvatar" title="点击更换头像">
+                <span id="pageAvatarText">…</span>
+                <span class="page-icon-hint">更换</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 两栏主体 -->
+    <div class="workspace-body">
+
+        <!-- 左栏：主内容 -->
+        <main class="workspace-left">
+
+            <!-- 打招呼 -->
+            <div class="page-header">
+                <div class="greeting-date" id="greetingDate"></div>
+                <h1 class="greeting-title" id="welcomeTitle">正在加载…</h1>
+                <p class="greeting-sub" id="welcomeSubtitle"></p>
+            </div>
+
+            <section class="section-shell">
+                <div class="section-meta">
+                    <div class="section-eyebrow">Core</div>
+                </div>
+                <div class="cards-bento cards-bento-core">
+
+                    <!-- Quick Chat -->
+                    <div class="card card-thread">
+                        <div class="card-kicker">Workspace Chat</div>
+                        <div class="card-title">Chat</div>
+                        <button id="openChatButtonInline" class="btn-glass-light" type="button">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H2a1 1 0 00-1 1v8a1 1 0 001 1h3l3 3 3-3h3a1 1 0 001-1V3a1 1 0 00-1-1z"/>
+                            </svg>
+                            打开聊天
+                        </button>
+                    </div>
+
+                    <!-- Quick Agent -->
+                    <div class="card card-quick-agent">
+                        <div class="card-kicker">Default Agent</div>
+                        <div class="card-title" id="agentCardTitle">Basic Agent</div>
+                        <button id="openAgentButtonInline" class="btn-primary" type="button" disabled>
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="3" width="12" height="10" rx="2"/>
+                                <path d="M6 7h.01M10 7h.01M6 10h4"/>
+                            </svg>
+                            进入 Agent
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-shell">
+                <div class="section-meta">
+                    <div class="section-eyebrow">Scenes</div>
+                </div>
+                <div class="cards-bento cards-bento-tools">
+                    <div class="card card-xhs-agent" onclick="window.location.href='/research-agent.html'" role="button" tabindex="0">
+                        <div class="card-kicker">Research Agent</div>
+                        <div class="card-title">Paper Research</div>
+                        <button id="openResearchAgentButtonInline" class="btn-glass-light" type="button" onclick="window.location.href='/research-agent.html'">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="7" cy="7" r="4.5"/>
+                                <path d="M10.5 10.5L14 14"/>
+                            </svg>
+                            检索论文
+                        </button>
+                    </div>
+
+                    <div class="card card-image-agent" onclick="window.location.href='/image-agent.html'" role="button" tabindex="0">
+                        <div class="card-kicker">Image Agent</div>
+                        <div class="card-title">图像处理</div>
+                        <div class="card-copy">当前支持数字水印工作流，已接入水印嵌入 MCP 服务。</div>
+                        <button id="openImageAgentButtonInline" class="btn-glass-amber" type="button" onclick="window.location.href='/image-agent.html'">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="3" width="12" height="10" rx="2"/>
+                                <path d="M4.5 10l2.1-2.4 1.7 1.8 2.7-3.1 1.5 1.7"/>
+                                <circle cx="5.2" cy="5.7" r="0.9"/>
+                            </svg>
+                            打开页面
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-shell">
+                <div class="section-meta">
+                    <div class="section-eyebrow">Build</div>
+                </div>
+                <div class="section-block">
+                    <div class="section-header">
+                        <span class="section-title">Agents</span>
+                        <button id="createAgentButton" class="btn-ghost" type="button">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                 stroke-width="1.8" stroke-linecap="round">
+                                <path d="M8 3v10M3 8h10"/>
+                            </svg>
+                            新建
+                        </button>
+                    </div>
+                    <div id="agentModuleList" class="agent-grid"></div>
+                </div>
+            </section>
+
+            <section class="section-shell">
+                <div class="section-meta">
+                    <div class="section-eyebrow">Context</div>
+                </div>
+                <div class="split-grid">
+                    <div class="section-block section-card-shell">
+                        <div class="section-header">
+                            <span class="section-title">知识库</span>
+                        </div>
+                        <div class="kb-module">
+                            <div class="kb-action-row">
+                                <button id="createKnowledgeBaseButton" class="kb-create-btn" type="button">
+                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                         stroke-width="1.8" stroke-linecap="round">
+                                        <path d="M8 3v10M3 8h10"/>
+                                    </svg>
+                                    新建知识库
+                                </button>
+                                <button id="uploadKnowledgeDocumentButton" class="kb-upload-btn" type="button">
+                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8 3v8M5 6l3-3 3 3M2 12h12"/>
+                                    </svg>
+                                    上传文档
+                                </button>
+                                <input id="knowledgeDocumentFileInput" type="file" accept=".md,.markdown,.txt" hidden>
+                            </div>
+                            <div id="mainKbList" class="kb-cards-grid"></div>
+                        </div>
+                    </div>
+
+                    <div class="section-block section-card-shell">
+                        <div class="section-header">
+                            <span class="section-title">最近会话</span>
+                            <button id="openChatButton" class="btn-ghost" type="button">
+                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M8 3v10M3 8h10"/>
+                                </svg>
+                                New Chat
+                            </button>
+                        </div>
+                        <div id="mainSessionList" class="sessions-list"></div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- 右侧：上下文面板 -->
+        <aside class="workspace-right">
+
+            <!-- Profile -->
+            <div class="right-section right-profile">
+                <div class="rp-head">
+                    <div class="rp-avatar" id="profileAvatarSm"></div>
+                    <div class="rp-info">
+                        <div class="rp-name" id="statDisplayName">—</div>
+                        <div class="rp-email" id="statEmail">—</div>
+                    </div>
+                </div>
+                <div class="rp-stats">
+                    <div class="rp-stat">
+                        <div class="rp-stat-label script-label">user id</div>
+                        <div class="rp-stat-val rp-mono" id="statUserId">—</div>
+                    </div>
+                    <div class="rp-stat">
+                        <div class="rp-stat-label">会话数</div>
+                        <div class="rp-stat-val" id="statSessions">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 天气 Widget -->
+            <div class="right-section">
+                <button id="workspaceWeatherButton" class="widget-trigger" type="button">
+                    <div class="widget-trigger-icon widget-trigger-icon-weather">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="8" cy="8" r="3"/>
+                            <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4"/>
+                        </svg>
+                    </div>
+                    <div class="widget-trigger-text">
+                        <div class="widget-trigger-title">今日天气</div>
+                        <div class="widget-trigger-desc" id="weatherTriggerDesc">点击查看实时天气</div>
+                    </div>
+                    <svg class="widget-trigger-chevron" viewBox="0 0 16 16" fill="none"
+                         stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 4l4 4-4 4"/>
+                    </svg>
+                </button>
+                <div id="workspaceWeatherPanel" style="display:none;margin-top:10px"></div>
+            </div>
+
+            <!-- LoL Esports Widget -->
+            <div class="right-section">
+                <button id="workspaceLolButton" class="widget-trigger" type="button">
+                    <div class="widget-trigger-icon widget-trigger-icon-lol">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="8,2 14,6 14,10 8,14 2,10 2,6"/>
+                            <circle cx="8" cy="8" r="2"/>
+                        </svg>
+                    </div>
+                    <div class="widget-trigger-text">
+                        <div class="widget-trigger-title">LoL Esports</div>
+                        <div class="widget-trigger-desc" id="lolTriggerDesc">点击查看今日赛事</div>
+                    </div>
+                    <svg class="widget-trigger-chevron" viewBox="0 0 16 16" fill="none"
+                         stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 4l4 4-4 4"/>
+                    </svg>
+                </button>
+                <div id="workspaceLolPanel" style="display:none;margin-top:10px"></div>
+            </div>
+
+            <div class="right-section">
+                <button id="workspaceNoteSyncButton" class="widget-trigger" type="button">
+                    <div class="widget-trigger-icon">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 2.5h5l3 3V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1.5Z"/>
+                            <path d="M9 2.5V6h3"/>
+                        </svg>
+                    </div>
+                    <div class="widget-trigger-text">
+                        <div class="widget-trigger-title">Notion Notes</div>
+                        <div class="widget-trigger-desc" id="noteSyncTriggerDesc">扫描本地 md 笔记并同步到 Notion</div>
+                    </div>
+                    <svg class="widget-trigger-chevron" viewBox="0 0 16 16" fill="none"
+                         stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 4l4 4-4 4"/>
+                    </svg>
+                </button>
+                <div id="workspaceNoteSyncPanel" style="display:none;margin-top:10px"></div>
+            </div>
+
+        </aside>
+    </div>
+</div>
+
+<input type="file" id="coverUploadInput" accept="image/*" hidden>
+
+<!-- ══════════ Cover Crop Modal ══════════ -->
+<div id="coverCropModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="modal-box modal-box-cover">
+        <div class="modal-header">
+            <h3>裁剪封面</h3>
+            <button id="closeCoverCropModal" class="modal-close" type="button" aria-label="关闭">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                    <path d="M3 3l10 10M13 3L3 13"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="cover-crop-shell">
+                <div class="cover-crop-frame" id="coverCropFrame">
+                    <img id="coverCropImage" class="cover-crop-image" alt="封面预览">
+                    <div class="cover-crop-mask"></div>
+                </div>
+            </div>
+            <p class="cover-crop-hint">拖拽图片调整显示区域，滚动下方缩放后点击确定。</p>
+            <label class="cover-adjust-row cover-adjust-row-zoom">
+                <span>缩放</span>
+                <input id="coverCropZoomInput" type="range" min="100" max="220" value="100">
+            </label>
+        </div>
+        <div class="modal-footer">
+            <button id="confirmCoverCropBtn" class="btn-primary" type="button">确定</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════ Avatar Picker Popover ══════════ -->
+<div id="avatarPickerPopover" class="avatar-popover" role="dialog">
+    <div class="modal-section-label">头像颜色</div>
+    <div class="color-grid" id="avatarColorGrid"></div>
+    <div class="modal-section-label">上传头像</div>
+    <label class="popover-upload" for="avatarUploadInput">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3v8M5 6l3-3 3 3M2 12h12"/>
+        </svg>
+        选择本地图片
+        <input type="file" id="avatarUploadInput" accept="image/*" style="display:none">
+    </label>
+    <button id="resetAvatarBtn" class="popover-reset" type="button">恢复默认</button>
+</div>
+
+<!-- ══════════ KB Management Modal ══════════ -->
+<div id="kbManageModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="modal-box modal-box-lg">
+        <div class="modal-header">
+            <h3 id="kbModalTitle">知识库配置</h3>
+            <button id="closeKbModal" class="modal-close" type="button" aria-label="关闭">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                    <path d="M3 3l10 10M13 3L3 13"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section-label">知识库</div>
+            <div id="knowledgeBindingHint" class="section-hint" style="margin-bottom:10px">请选择知识库后进行绑定</div>
+            <div id="knowledgeBaseList" class="sessions-list"></div>
+            <div id="knowledgeDocumentList" class="sessions-list" style="margin-top:12px"></div>
+        </div>
+        <div class="modal-footer">
+            <button id="bindKnowledgeBaseButton" class="btn-primary" type="button">绑定到智能体</button>
+        </div>
+    </div>
+</div>
+
+<div class="live2d-shell" id="live2dShell">
+    <button class="live2d-toggle" id="live2dToggleButton" type="button">Live2D</button>
+    <div class="live2d-stage">
+        <div class="live2d-stage-glow"></div>
+        <div class="live2d-canvas" id="live2dCanvas"></div>
+        <div class="live2d-caption">
+            <div class="live2d-title">Miku</div>
+            <div class="live2d-sub">工作区陪伴挂件</div>
+        </div>
+    </div>
+</div>
+
+<script src="/workspace.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAgent</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="ambient-shell" aria-hidden="true">
+    <div class="ambient-bubble ambient-bubble-a"></div>
+    <div class="ambient-bubble ambient-bubble-b"></div>
+    <div class="ambient-bubble ambient-bubble-c"></div>
+    <div class="liquid-orb liquid-orb-login"></div>
+</div>
+
+<svg class="liquid-filter-defs" aria-hidden="true">
+    <defs>
+        <filter id="jagent-liquid-filter">
+            <feImage href="/assets/liquid-grass/displacement-1.png" x="0" y="0" width="220" height="220" result="magnifyMap"/>
+            <feDisplacementMap in="SourceGraphic" in2="magnifyMap" scale="18" xChannelSelector="R" yChannelSelector="G" result="magnified"/>
+            <feImage href="/assets/liquid-grass/displacement-2.png" x="0" y="0" width="220" height="220" result="warpMap"/>
+            <feDisplacementMap in="magnified" in2="warpMap" scale="52" xChannelSelector="R" yChannelSelector="G" result="warped"/>
+            <feImage href="/assets/liquid-grass/border.png" x="0" y="0" width="220" height="220" result="borderMap"/>
+            <feComposite in="warped" in2="borderMap" operator="in" result="highlighted"/>
+            <feBlend in="warped" in2="highlighted" mode="screen"/>
+        </filter>
+    </defs>
+</svg>
+
+<!-- Login success animation overlay -->
+<div id="successOverlay">
+    <div class="sv-ring">
+        <svg class="sv-circle-svg" viewBox="0 0 100 100">
+            <circle class="ring-bg"    cx="50" cy="50" r="42"/>
+            <circle class="ring-track" cx="50" cy="50" r="42"/>
+        </svg>
+        <svg viewBox="0 0 100 100">
+            <path class="check-path" d="M 26,50 L 43,67 L 74,35"/>
+        </svg>
+    </div>
+    <p class="sv-title">登录成功</p>
+    <p id="svName" class="sv-sub"></p>
+</div>
+
+<div class="auth-layout">
+
+    <section class="brand-panel">
+        <span class="logo-pill">JAgent</span>
+        <div class="brand-orbit">
+            <div class="brand-orbit-card">
+                <img src="/assets/reference/avatar.png" alt="JAgent visual" class="brand-orbit-avatar">
+                <div class="brand-orbit-copy">
+                    <span class="brand-orbit-label">Workspace-ready</span>
+                    <strong>Agent OS</strong>
+                    <p>会话、知识库、垂类工作流统一落在一个前端入口里。</p>
+                </div>
+            </div>
+        </div>
+        <div class="brand-body">
+            <h1 class="brand-h1">
+                开始你的<br>
+                <span class="dim">Agent</span> 之旅。
+            </h1>
+            <p class="brand-sub">身份认证、会话管理、智能对话，一切都从这里开始。</p>
+        </div>
+        <p class="brand-foot">Powered by DeepSeek</p>
+    </section>
+
+    <main class="auth-panel">
+
+        <div class="form-head">
+            <div>
+                <p class="form-kicker" id="cardKicker">Welcome Back</p>
+                <h2 class="form-title" id="cardTitle">登录账号</h2>
+            </div>
+            <button id="switchModeButton" class="mode-btn" type="button">去注册</button>
+        </div>
+
+        <section id="loginSection" class="form-body active">
+            <form id="loginForm">
+                <div class="field">
+                    <label for="loginEmail">邮箱</label>
+                    <input id="loginEmail" type="email" placeholder="you@example.com" required>
+                </div>
+                <div class="field">
+                    <label for="loginPassword">密码</label>
+                    <input id="loginPassword" type="password" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" id="loginSubmit" class="btn-main">登录</button>
+            </form>
+        </section>
+
+        <section id="registerSection" class="form-body">
+            <form id="registerForm">
+                <div class="field">
+                    <label for="registerDisplayName">显示名称</label>
+                    <input id="registerDisplayName" type="text" placeholder="例如 Dora" required>
+                </div>
+                <div class="field">
+                    <label for="registerEmail">邮箱</label>
+                    <input id="registerEmail" type="email" placeholder="you@example.com" required>
+                </div>
+                <div class="field">
+                    <label>验证码</label>
+                    <div class="code-row">
+                        <input id="registerCode" type="text" placeholder="6 位验证码" required>
+                        <button id="sendCodeButton" type="button" class="btn-sm">发送</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="registerPassword">密码</label>
+                    <input id="registerPassword" type="password" placeholder="请设置密码" required>
+                </div>
+                <button type="submit" class="btn-main">注册</button>
+            </form>
+        </section>
+
+        <div id="formHint" class="form-hint"></div>
+
+    </main>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

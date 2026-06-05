@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Agent</title>
+    <link rel="stylesheet" href="/image-agent.css?v=20260517-1">
+</head>
+<body>
+<div class="page-shell">
+    <main class="main-panel">
+        <div class="content-container">
+            <div class="topbar">
+                <button class="back-link" id="backToWorkspaceButton" type="button">返回 Workspace</button>
+                <div class="hero-hint" id="pageStatusText">等待启动</div>
+            </div>
+
+            <header class="hero">
+                <p class="eyebrow">Image Workflow</p>
+                <h1>图像处理智能体</h1>
+                <p class="hero-copy">当前先开放数字水印链路。你可以在这里启动 Watermark MCP、搜索图片，并把图片批量送入水印嵌入流程。</p>
+            </header>
+
+            <section class="mcp-card">
+                <div class="mcp-head">
+                    <div>
+                        <p class="eyebrow">Watermark MCP</p>
+                        <h3>服务控制台</h3>
+                        <p class="mcp-copy">这条链路采用独立 MCP 进程，JAgent 通过本地 HTTP 协议调用图片搜索和水印嵌入工具。</p>
+                    </div>
+                    <div class="mcp-status-pill is-checking" id="mcpStatusPill">检测中</div>
+                </div>
+                <div class="mcp-actions">
+                    <button id="mcpStartButton" class="secondary-btn" type="button">启动 MCP</button>
+                    <button id="mcpStopButton" class="secondary-btn" type="button">停止 MCP</button>
+                    <button id="openAgentChatButton" class="primary-btn" type="button">进入智能体对话</button>
+                </div>
+                <p class="inline-hint" id="mcpStatusText">正在检测 Watermark MCP 服务状态...</p>
+            </section>
+
+            <section class="workflow-card">
+                <div class="workflow-head">
+                    <div>
+                        <p class="eyebrow">Mode</p>
+                        <h3>数字水印</h3>
+                    </div>
+                    <div class="mode-pill">仅支持水印嵌入</div>
+                </div>
+
+                <div class="form-grid">
+                    <label class="field">
+                        <span>处理工作</span>
+                        <select id="workflowSelect">
+                            <option value="embed" selected>水印嵌入</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>输入目录</span>
+                        <input id="inputDirInput" type="text" value="code/watermark-mcp/Datasets/images" placeholder="相对工作区根目录的路径">
+                    </label>
+                    <label class="field">
+                        <span>文件名关键字</span>
+                        <input id="keywordInput" type="text" value="" placeholder="可选，例如 29">
+                    </label>
+                    <label class="field">
+                        <span>最大处理数量</span>
+                        <input id="limitInput" type="number" min="1" value="5">
+                    </label>
+                    <label class="field field-span-2">
+                        <span>输出目录</span>
+                        <input id="outputDirInput" type="text" value="watermark-outputs/ui-run" placeholder="相对工作区根目录的输出目录">
+                    </label>
+                </div>
+
+                <div class="action-row">
+                    <button id="searchImagesButton" class="secondary-btn" type="button">检索图片</button>
+                    <button id="embedImagesButton" class="primary-btn" type="button">执行水印嵌入</button>
+                </div>
+                <p class="inline-hint" id="workflowStatusText">默认会从示例图片目录中检索并写入 `watermark-outputs/ui-run`。</p>
+            </section>
+
+            <section class="result-card">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Preview</p>
+                        <h3>检索结果</h3>
+                    </div>
+                </div>
+                <div class="result-list" id="searchResultList">
+                    <div class="empty-state">
+                        <p>还没有执行图片检索。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="result-card">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Output</p>
+                        <h3>嵌入结果</h3>
+                    </div>
+                </div>
+                <div class="result-summary" id="embedSummary">还没有执行水印嵌入。</div>
+                <div class="result-list" id="embedResultList">
+                    <div class="empty-state">
+                        <p>等待执行。</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script src="/image-agent.js?v=20260517-1"></script>
+</body>
+</html>

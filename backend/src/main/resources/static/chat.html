@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAgent · Chat</title>
+    <link rel="stylesheet" href="/chat.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+
+    <div class="sidebar-brand">
+        <span class="logo-pill">
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 2L3 6.5v8h4v-4h4v4h4v-8L9 2z"/>
+            </svg>
+            JAgent
+        </span>
+        <button id="backWorkspaceButton" class="back-btn" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 3L5 8l5 5"/>
+            </svg>
+            返回
+        </button>
+    </div>
+
+    <div class="sidebar-top-actions">
+        <button id="newChatButton" class="btn-icon-text" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="1.8" stroke-linecap="round">
+                <path d="M8 3v10M3 8h10"/>
+            </svg>
+            新建会话
+        </button>
+    </div>
+
+    <div class="section-label">会话记录</div>
+
+    <div id="sessionList" class="session-list"></div>
+
+    <div class="sidebar-footer">
+        <div id="sessionMeta" class="sidebar-meta">正在准备会话…</div>
+        <div class="sidebar-actions">
+            <button id="logoutButton" class="btn-sm" type="button">退出登录</button>
+        </div>
+    </div>
+
+</nav>
+
+<!-- Chat panel -->
+<div class="chat-panel">
+
+    <header class="chat-header">
+        <div class="chat-header-left">
+            <div class="chat-kicker">Simple Chat</div>
+            <h2>AI 对话</h2>
+        </div>
+        <div id="sessionHint" class="session-hint">正在校验登录态…</div>
+    </header>
+
+    <div id="messageList" class="message-list">
+        <div class="message-placeholder">
+            <div class="message-placeholder-icon">
+                <svg viewBox="0 0 40 40" fill="none" stroke="currentColor"
+                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M36 6H4a2 2 0 00-2 2v20a2 2 0 002 2h8l8 8 8-8h8a2 2 0 002-2V8a2 2 0 00-2-2z"/>
+                </svg>
+            </div>
+            <h3>开始一段对话</h3>
+            <p>在下方输入框发送第一条消息，<br>或从左侧选择历史会话继续。</p>
+        </div>
+    </div>
+
+    <form id="chatForm" class="composer">
+        <div class="composer-inner">
+            <textarea id="messageInput"
+                      placeholder="输入消息，按 Enter 发送，Shift+Enter 换行…"
+                      rows="3"></textarea>
+            <div class="composer-footer">
+                <span id="modelHint" class="model-hint">模型未初始化</span>
+                <button type="submit" id="sendButton" class="btn-send">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2L2 8l5 2 2 5 5-13z"/>
+                    </svg>
+                    发送
+                </button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script src="/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: jagent-mcp-server
+
+server:
+  port: 18081
+
+jagent:
+  tool:
+    workspace:
+      root: ${JAGENT_TOOL_WORKSPACE_ROOT:.}

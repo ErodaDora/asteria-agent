@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Agent</title>
+    <link rel="stylesheet" href="/research-agent.css">
+</head>
+<body>
+<div class="page-shell">
+    <main class="main-panel">
+        <div class="content-container">
+            <div class="topbar">
+                <button class="back-link" id="backToWorkspaceButton" type="button">返回 Workspace</button>
+                <div class="hero-hint" id="pageStatusText">准备检索</div>
+            </div>
+
+            <header class="hero">
+                <p class="eyebrow">Research Workflow</p>
+                <h1>Paper Research Agent</h1>
+                <p class="hero-copy">面向论文检索的轻量入口，先做公开文献搜索与筛选，后面再接入知识沉淀和笔记同步。</p>
+            </header>
+
+            <section class="glass-card">
+                <div class="card-head">
+                    <div>
+                        <p class="eyebrow">Search Scope</p>
+                        <h3>检索条件</h3>
+                        <p class="card-copy">支持按主题词、期刊/会议范围、时间区间与结果数做轻筛选。</p>
+                    </div>
+                    <div class="source-pill">OpenAlex</div>
+                </div>
+
+                <div class="form-grid">
+                    <label class="field field-span-2">
+                        <span>研究问题 / 关键词</span>
+                        <input id="queryInput" type="text" placeholder="例如：RAG evaluation, model context protocol, watermarking">
+                    </label>
+
+                    <label class="field">
+                        <span>范围</span>
+                        <select id="scopeSelect">
+                            <option value="all" selected>全部</option>
+                            <option value="journal">只看期刊</option>
+                            <option value="conference">只看会议</option>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span>期刊 / 会议名</span>
+                        <input id="venueInput" type="text" placeholder="例如：ACL / Nature / CVPR">
+                    </label>
+
+                    <label class="field">
+                        <span>起始年份</span>
+                        <input id="fromYearInput" type="number" min="1900" max="2100" value="2022">
+                    </label>
+
+                    <label class="field">
+                        <span>结果数</span>
+                        <select id="limitSelect">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="action-row">
+                    <button id="runSearchButton" class="primary-btn" type="button">开始检索</button>
+                    <button id="fillMcpButton" class="secondary-btn" type="button">试试 MCP 相关</button>
+                    <button id="fillRagButton" class="secondary-btn" type="button">试试 RAG 相关</button>
+                </div>
+                <p class="inline-hint" id="searchStatusText">当前走公开学术数据源，适合先做轻量研究与论文初筛。</p>
+            </section>
+
+            <section class="glass-card">
+                <div class="card-head">
+                    <div>
+                        <p class="eyebrow">Results</p>
+                        <h3>检索结果</h3>
+                        <p class="card-copy">展示标题、年份、来源、作者与摘要片段。后续可以继续接本地收藏、知识库和 Notion 同步。</p>
+                    </div>
+                </div>
+                <div class="results-summary" id="resultsSummary">还没有检索结果。</div>
+                <div class="results-list" id="resultsList"></div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script src="/research-agent.js"></script>
+</body>
+</html>

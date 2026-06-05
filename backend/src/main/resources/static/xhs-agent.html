@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XHS Agent</title>
+    <link rel="stylesheet" href="/xhs-agent.css?v=20260516-1">
+</head>
+<body>
+<div class="page-shell">
+    <main class="main-panel">
+        <div class="content-container">
+            <div class="topbar">
+                <button class="back-link" id="backToWorkspaceButton" type="button">返回 Workspace</button>
+                <div class="hero-hint" id="pageStatusText">准备开始</div>
+            </div>
+
+            <header class="hero">
+                <p class="eyebrow">Content Workflow</p>
+                <h1>RED Content Pipeline</h1>
+                <p class="hero-copy">自动化的数据采集、分析与内容生成工作流。</p>
+            </header>
+
+            <section class="mcp-card">
+                <div class="mcp-head">
+                    <div>
+                        <p class="eyebrow">XHS MCP</p>
+                        <h3>MCP 服务控制台</h3>
+                        <p class="mcp-copy">沿用同级小红书项目的做法，把登录、登录态检查和图文发布切到本地 MCP 服务。</p>
+                    </div>
+                    <div class="mcp-status-pill is-checking" id="mcpStatusPill">检测中</div>
+                </div>
+                <div class="mcp-actions">
+                    <button id="mcpStartVisibleButton" class="secondary-btn" type="button">启动 MCP（显示浏览器）</button>
+                    <button id="mcpStartHeadlessButton" class="secondary-btn" type="button">启动 MCP（无界面）</button>
+                    <button id="mcpStopButton" class="secondary-btn" type="button">停止 MCP</button>
+                    <button id="mcpLoginButton" class="primary-btn" type="button">登录小红书</button>
+                </div>
+                <p class="inline-hint" id="mcpStatusText">正在检测 MCP 服务状态...</p>
+            </section>
+
+            <div class="workflow-timeline">
+                <section class="workflow-step step-current" id="stepCrawlCard" data-step="1">
+                    <div class="step-node">
+                        <div class="step-index"><span class="step-number">1</span><span class="step-check">✓</span></div>
+                        <div class="step-rail"></div>
+                    </div>
+                    <div class="step-card step-card-glass">
+                        <div class="step-head">
+                            <div class="step-meta">
+                                <div class="step-kicker">Step 01</div>
+                                <h3>采集小红书数据</h3>
+                                <p>输入关键词，使用 Playwright 抓取笔记并做文本清洗。</p>
+                            </div>
+                            <div class="step-state-pill" id="stepCrawlPill">Ready</div>
+                        </div>
+
+                        <div class="step-body">
+                            <div class="form-grid form-grid-crawl">
+                                <label class="field field-span-2">
+                                    <span>关键词列表</span>
+                                    <textarea id="keywordsInput" rows="4" placeholder="例如：留学穿搭, 学生党化妆, 通勤包"></textarea>
+                                </label>
+                                <label class="field field-span-2">
+                                    <span>话题过滤词</span>
+                                    <textarea id="topicWordsInput" rows="4" placeholder="可选，例如：穿搭, 省钱, 日常"></textarea>
+                                </label>
+                                <label class="field">
+                                    <span>目标采集数量</span>
+                                    <input id="targetCountInput" type="number" min="1" value="3">
+                                </label>
+                                <label class="field">
+                                    <span>最少评论数</span>
+                                    <input id="minCommentsInput" type="number" min="0" value="40">
+                                </label>
+                                <label class="field">
+                                    <span>最少点赞数</span>
+                                    <input id="minLikesInput" type="number" min="0" value="100">
+                                </label>
+                                <label class="field">
+                                    <span>最少收藏数</span>
+                                    <input id="minFavoritesInput" type="number" min="0" value="0">
+                                </label>
+                            </div>
+
+                            <div class="action-row">
+                                <button id="startCrawlButton" class="primary-btn" type="button">开始检索</button>
+                                <button id="runPipelineButton" class="secondary-btn" type="button">一键跑完整流程</button>
+                                <button id="loadLatestButton" class="secondary-btn" type="button">查看最近结果</button>
+                            </div>
+                            <p class="inline-hint" id="crawlStatusText">点击开始检索后，如未登录会自动弹出登录页；最近一次采集结果会暂存在后端内存里。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="workflow-step step-pending" id="stepResultCard" data-step="2">
+                    <div class="step-node">
+                        <div class="step-index"><span class="step-number">2</span><span class="step-check">✓</span></div>
+                        <div class="step-rail"></div>
+                    </div>
+                    <div class="step-card step-card-glass">
+                        <div class="step-head">
+                            <div class="step-meta">
+                                <div class="step-kicker">Step 02</div>
+                                <h3>查看采集结果</h3>
+                                <p>浏览采集数据，并准备同步到 Notion。</p>
+                            </div>
+                            <div class="step-state-pill" id="stepResultPill">Pending</div>
+                        </div>
+                        <div class="result-panel">
+                            <div class="result-summary" id="resultSummary">还没有采集结果。</div>
+                            <div class="result-list" id="resultList"></div>
+                        </div>
+                        <div class="action-row">
+                            <button id="syncToNotionButton" class="secondary-btn" type="button">同步到 Notion</button>
+                        </div>
+                        <p class="inline-hint" id="notionStatusText">Notion 暂未接入。</p>
+                    </div>
+                </section>
+
+                <section class="workflow-step step-pending" id="stepGenerateCard" data-step="3">
+                    <div class="step-node">
+                        <div class="step-index"><span class="step-number">3</span><span class="step-check">✓</span></div>
+                        <div class="step-rail"></div>
+                    </div>
+                    <div class="step-card step-card-glass">
+                        <div class="step-head">
+                            <div class="step-meta">
+                                <div class="step-kicker">Step 03</div>
+                                <h3>AI 生成笔记</h3>
+                                <p>基于采集结果做规则分析，再用 Spring AI 生成选题与文案。</p>
+                            </div>
+                            <div class="step-state-pill" id="stepGeneratePill">Waiting</div>
+                        </div>
+                        <div class="step-body">
+                            <div class="form-grid form-grid-generate">
+                                <label class="field">
+                                    <span>生成模型</span>
+                                    <select id="modelKeySelect">
+                                        <option value="deepseek-chat" selected>deepseek-chat</option>
+                                        <option value="glm-4.6">glm-4.6</option>
+                                        <option value="gpt-4o-mini">gpt-4o-mini</option>
+                                    </select>
+                                </label>
+                                <label class="field">
+                                    <span>目标人群</span>
+                                    <input id="audienceInput" type="text" value="" placeholder="留空表示不限定目标人群">
+                                </label>
+                                <label class="field field-span-2">
+                                    <span>语气风格</span>
+                                    <input id="toneInput" type="text" value="真实分享">
+                                </label>
+                                <label class="field">
+                                    <span>选题数量</span>
+                                    <input id="topicCountInput" type="number" min="1" value="3">
+                                </label>
+                                <label class="field">
+                                    <span>每个选题文案数</span>
+                                    <input id="contentCountInput" type="number" min="1" value="2">
+                                </label>
+                                <label class="field field-span-2 checkbox-field">
+                                    <span>自动配图</span>
+                                    <label class="checkbox-row">
+                                        <input id="generateImagesInput" type="checkbox" checked>
+                                        <span>开启配图链路（deepseek-chat 会自动跳过）</span>
+                                    </label>
+                                </label>
+                            </div>
+                            <div class="action-row">
+                                <button id="startGenerateButton" class="primary-btn" type="button">开始生成</button>
+                                <button id="loadLatestGenerateButton" class="secondary-btn" type="button">查看最近生成结果</button>
+                            </div>
+                            <p class="inline-hint" id="generateStatusText">先完成采集，再进入分析、选题与文案生成。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="workflow-step step-pending" id="stepPublishCard" data-step="4">
+                    <div class="step-node">
+                        <div class="step-index"><span class="step-number">4</span><span class="step-check">✓</span></div>
+                    </div>
+                    <div class="step-card step-card-glass">
+                        <div class="step-head">
+                            <div class="step-meta">
+                                <div class="step-kicker">Step 04</div>
+                                <h3>查看生成结果</h3>
+                                <p>查看分析摘要、生成选题和文案，后续再接发布流转。</p>
+                            </div>
+                            <div class="step-state-pill" id="stepPublishPill">Standby</div>
+                        </div>
+                        <div class="result-panel">
+                            <div class="result-summary" id="generateSummary">还没有生成结果。</div>
+                            <div class="publish-config-row">
+                                <label class="field">
+                                    <span>发布模式</span>
+                                    <select id="publishModeSelect">
+                                        <option value="mcp" selected>MCP 服务</option>
+                                        <option value="playwright">Playwright 手动页</option>
+                                    </select>
+                                </label>
+                                <label class="field">
+                                    <span>原创声明</span>
+                                    <select id="publishOriginalSelect">
+                                        <option value="true" selected>原创</option>
+                                        <option value="false">非原创</option>
+                                    </select>
+                                </label>
+                                <label class="field">
+                                    <span>可见性</span>
+                                    <select id="publishVisibilitySelect">
+                                        <option value="公开可见" selected>公开可见</option>
+                                        <option value="仅自己可见">仅自己可见</option>
+                                        <option value="仅互关好友可见">仅互关好友可见</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="result-list" id="generateResultList"></div>
+                        </div>
+                        <div class="action-row">
+                            <button id="syncGeneratedToNotionButton" class="secondary-btn" type="button">生成结果同步到 Notion</button>
+                        </div>
+                        <p class="inline-hint" id="generatedNotionStatusText">生成结果暂未同步到 Notion。</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="publish-preview-overlay hidden" id="publishPreviewOverlay">
+    <div class="publish-preview-modal">
+        <div class="publish-preview-head">
+            <div>
+                <p class="eyebrow">Publish Preview</p>
+                <h3>发布前确认</h3>
+            </div>
+            <button class="preview-close-btn" id="publishPreviewCloseButton" type="button">关闭</button>
+        </div>
+        <div class="publish-preview-body" id="publishPreviewBody"></div>
+        <div class="action-row">
+            <button class="secondary-btn" id="publishPreviewCancelButton" type="button">取消</button>
+            <button class="primary-btn" id="publishPreviewConfirmButton" type="button">确认发布</button>
+        </div>
+        <p class="inline-hint" id="publishPreviewStatusText">确认后会按当前发布模式执行。</p>
+    </div>
+</div>
+
+<script src="/xhs-agent.js?v=20260516-1"></script>
+</body>
+</html>

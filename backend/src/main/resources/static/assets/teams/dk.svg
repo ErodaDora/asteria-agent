@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="12" fill="#003087"/>
+  <polygon points="50,10 72,22 72,52 50,66 28,52 28,22" fill="none" stroke="rgba(255,215,0,0.5)" stroke-width="2.5"/>
+  <text x="50" y="43" font-family="-apple-system,Arial Black,sans-serif" font-size="26" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle" letter-spacing="-1">DK</text>
+  <text x="50" y="78" font-family="-apple-system,Arial,sans-serif" font-size="10" font-weight="600" fill="rgba(255,215,0,0.75)" text-anchor="middle" dominant-baseline="middle" letter-spacing="2.5">DPLUS KIA</text>
+</svg>

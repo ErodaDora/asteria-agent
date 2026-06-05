@@ -1,0 +1,39 @@
+# Build output
+target/
+*/target/
+
+# Runtime data
+backend/data/
+data/
+watermark-outputs/
+watermark-outputs-binary/
+notes-sync/
+
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+application-local.yaml
+application-local.yml
+application-local.properties
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+.claude/settings.local.json
+
+# Logs
+*.log
+logs/
+
+# Local command scratchpad
+指令.txt
+
+# Java / Maven
+*.class
+dependency-reduced-pom.xml
+
+# Python helper cache
+__pycache__/
+*.py[cod]

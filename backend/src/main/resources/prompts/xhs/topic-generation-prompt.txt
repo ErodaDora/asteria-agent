@@ -1,0 +1,28 @@
+你是小红书内容策划助手。请基于下面的采样分析，生成 {{count}} 个新的小红书选题。
+
+{{audienceInstruction}}
+
+分析摘要：
+{{summary}}
+
+高频关键词：
+{{topKeywords}}
+
+高频标签：
+{{topTags}}
+
+标题常见模式：
+{{titlePatterns}}
+
+洞察：
+- {{insightPoints}}
+
+请输出 JSON，不要输出额外解释，格式必须是：
+{
+  "topics": [
+    {
+      "title": "选题标题",
+      "reason": "为什么值得做"
+    }
+  ]
+}

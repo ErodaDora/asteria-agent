@@ -1,0 +1,136 @@
+spring:
+  application:
+    name: jagent-backend
+  datasource:
+    # 当前先连本地 PostgreSQL 的 jchatmind 库。
+    # 后面如果想把 JAgent 的数据和 JChatMind 隔离，再单独新建数据库即可。
+    url: ${JAGENT_DB_URL:jdbc:postgresql://localhost:5432/jchatmind}
+    username: ${JAGENT_DB_USERNAME:dora}
+    password: ${JAGENT_DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  redis:
+    host: ${JAGENT_REDIS_HOST:localhost}
+    port: ${JAGENT_REDIS_PORT:6379}
+  mail:
+    host: ${JAGENT_MAIL_HOST:smtp.qq.com}
+    port: ${JAGENT_MAIL_PORT:587}
+    username: ${JAGENT_MAIL_USERNAME:}
+    password: ${JAGENT_MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  ai:
+    deepseek:
+      # Spring AI 的 DeepSeek 连接配置。
+      # 这里复用和手写 RestClient 一样的 base-url / api-key，
+      # 方便对照“手动调 API”和“框架封装调模型”两条链路。
+      base-url: ${llm.base-url}
+      api-key: ${llm.api-key}
+      chat:
+        options:
+          model: ${llm.model}
+    zhipuai:
+      # 第二个可选模型：先接智谱，演示“一个模型 = 一个 ChatClient Bean”的多模型写法。
+      # 这里给一个非空占位值，避免在本地未配置 ZHIPUAI_API_KEY 时，
+      # Spring AI 的自动装配在启动阶段直接失败。
+      # 真正使用 glm-4.6 前，仍然应该在终端里显式设置真实 key。
+      api-key: ${ZHIPUAI_API_KEY:disabled-zhipuai-key}
+      chat:
+        options:
+          model: glm-4.6
+    openai:
+      # OpenAI / GPT 模型配置：
+      # 如果想启用 GPT 系列，把 OPENAI_API_KEY 配到环境变量即可。
+      # 这里给一个非空占位值，避免本地没配 key 时 Spring AI 在启动阶段直接失败。
+      # 真正要调用 GPT 系列时，仍然应显式设置 OPENAI_API_KEY。
+      api-key: ${OPENAI_API_KEY:disabled-openai-key}
+      chat:
+        options:
+          model: gpt-4o-mini
+
+server:
+  port: 8081
+
+jwt:
+  # JWT 相关配置：负责 access token / refresh token 的签发与校验。
+  # 这部分是 token 机制，不是邮箱验证码，也不是 Redis 配置。
+  secret: ${JAGENT_JWT_SECRET:local-jagent-jwt-secret-key-for-demo-only-please-change}
+  access-token-expire-seconds: 1800
+  refresh-token-expire-seconds: 2592000
+
+verification:
+  register-code-expire-seconds: 300
+
+llm:
+  # 最小聊天能力：
+  # 这里先直接走 DeepSeek 的 Chat Completions API，
+  # 只实现“一次请求 -> 一次回复”，不先接记忆、工具、RAG。
+  base-url: ${JAGENT_LLM_BASE_URL:https://api.deepseek.com}
+  api-key: ${JAGENT_LLM_API_KEY:disabled-deepseek-key}
+  model: ${JAGENT_LLM_MODEL:deepseek-chat}
+  system-prompt: 你是 JAgent 的最小聊天助手，请简洁、清楚地回答用户问题。
+  # 方案 2：摘要 + 最近消息
+  # recent-message-limit 表示每次保留多少条原始消息窗口。
+  # summary-trigger-message-count 表示消息累积到多少条后开始刷新摘要。
+  recent-message-limit: 6
+  summary-trigger-message-count: 12
+  # 当前项目里“模型种类”的选择，实际对应的是 SpringAiChatClientConfig 里注册的 Bean 名称。
+  # 现在可选：
+  # - deepseek-chat
+  # - glm-4.6
+  # - gpt-4o-mini
+
+agent:
+  loop:
+    # 最小多步 Agent loop 的安全上限。
+    # 避免模型在规划工具时不断循环调用，导致一次请求无限增长。
+    max-tool-steps: 3
+
+jagent:
+  tool:
+    workspace:
+      root: ${JAGENT_TOOL_WORKSPACE_ROOT:.}
+
+knowledge:
+  storage:
+    base-path: ./data/knowledge-documents
+  embedding:
+    base-url: http://localhost:11434
+    model: bge-m3
+
+notion:
+  token: ${NOTION_TOKEN:}
+  database-id: ${NOTION_DATABASE_ID:}
+  page-id: ${NOTION_PAGE_ID:}
+
+notes-sync:
+  root: ${NOTES_SYNC_ROOT:./notes-sync}
+
+xhs:
+  playwright:
+    storage-state-path: ./data/xhs/xhs_state.json
+    login-wait-seconds: 120
+    headless: false
+  mcp:
+    url: ${XHS_MCP_URL:http://localhost:18060}
+    endpoint: ${XHS_MCP_ENDPOINT:http://localhost:18060/mcp}
+    binary: ${XHS_MCP_BINARY:}
+    port: ${XHS_MCP_PORT:18060}
+    python: ${XHS_MCP_PYTHON:python}
+    bridge-script: ${XHS_MCP_BRIDGE_SCRIPT:./scripts/xhs_mcp_bridge.py}
+    cookie-path: ${XHS_MCP_COOKIE_PATH:./data/xhs/mcp_cookies.json}
+
+watermark:
+  mcp:
+    url: ${WATERMARK_MCP_URL:http://127.0.0.1:18160}
+    binary: ${WATERMARK_MCP_BINARY:}
+    script: ${WATERMARK_MCP_SCRIPT:}
+    python: ${WATERMARK_MCP_PYTHON:python3}
+    port: ${WATERMARK_MCP_PORT:18160}
+    workspace-root: ${WATERMARK_MCP_WORKSPACE_ROOT:.}
+    output-dir: ${WATERMARK_MCP_OUTPUT_DIR:./watermark-outputs}
