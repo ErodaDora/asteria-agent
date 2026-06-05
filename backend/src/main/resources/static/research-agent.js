@@ -7,22 +7,168 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function buildQueryUrl() {
+const VENUE_ALIASES = [
+  {
+    keys: ["acm", "acmmm", "acm mm", "acm multimedia", "mm"],
+    canonical: "ACM International Conference on Multimedia",
+    searchBoost: "ACM Multimedia",
+    sourceIds: [
+      "S4306417570",
+      "S4363608757"
+    ],
+    type: "conference"
+  },
+  {
+    keys: ["tmm", "ieee tmm", "transactions on multimedia"],
+    canonical: "IEEE Transactions on Multimedia",
+    searchBoost: "IEEE Transactions on Multimedia",
+    sourceIds: ["S204132540"],
+    type: "journal"
+  },
+  {
+    keys: ["cvpr"],
+    canonical: "IEEE/CVF Conference on Computer Vision and Pattern Recognition",
+    searchBoost: "CVPR",
+    sourceIds: [],
+    type: "conference"
+  },
+  {
+    keys: ["acl"],
+    canonical: "Annual Meeting of the Association for Computational Linguistics",
+    searchBoost: "ACL",
+    sourceIds: [],
+    type: "conference"
+  }
+];
+
+function normalizeVenueInput(value) {
+  const raw = (value || "").trim();
+  const lower = raw.toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ");
+  if (!lower) {
+    return {
+      raw: "",
+      canonical: "",
+      searchBoost: "",
+      sourceIds: [],
+      type: ""
+    };
+  }
+
+  const alias = VENUE_ALIASES.find(item => item.keys.includes(lower));
+  if (alias) {
+    return {
+      raw,
+      canonical: alias.canonical,
+      searchBoost: alias.searchBoost,
+      sourceIds: alias.sourceIds,
+      type: alias.type
+    };
+  }
+
+  return {
+    raw,
+    canonical: raw,
+    searchBoost: raw,
+    sourceIds: [],
+    type: ""
+  };
+}
+
+function openAlexSourceId(value) {
+  return String(value || "").replace(/^https:\/\/openalex\.org\//, "");
+}
+
+function matchesVenueName(work, venue) {
+  if (!venue.raw && !venue.canonical) return true;
+  const source = work?.primary_location?.source || {};
+  const sourceId = openAlexSourceId(source.id);
+  if (venue.sourceIds?.includes(sourceId)) return true;
+
+  const haystack = [
+    source.display_name,
+    ...(Array.isArray(source.alternate_titles) ? source.alternate_titles : [])
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  const needles = [venue.raw, venue.canonical, venue.searchBoost]
+    .filter(Boolean)
+    .map(item => item.toLowerCase());
+
+  return needles.some(needle => haystack.includes(needle));
+}
+
+async function resolveVenueSources(venue, scope) {
+  if (!venue.raw) return [];
+
+  const params = new URLSearchParams();
+  params.set("search", venue.canonical || venue.raw);
+  params.set("per-page", "10");
+  try {
+    const response = await fetch(`https://api.openalex.org/sources?${params.toString()}`);
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    const results = Array.isArray(data?.results) ? data.results : [];
+    return results
+      .filter(source => {
+        if (scope === "journal") return source?.type === "journal";
+        if (scope === "conference") return source?.type === "conference";
+        if (venue.type) return source?.type === venue.type;
+        return true;
+      })
+      .filter(source => matchesSourceAlias(source, venue))
+      .map(source => openAlexSourceId(source.id))
+      .filter(Boolean)
+      .slice(0, 8);
+  } catch (error) {
+    return [];
+  }
+}
+
+function matchesSourceAlias(source, venue) {
+  if (!venue.raw && !venue.canonical) return true;
+  const sourceId = openAlexSourceId(source?.id);
+  if (venue.sourceIds?.includes(sourceId)) return true;
+
+  const name = String(source?.display_name || "").toLowerCase();
+  const raw = String(venue.raw || "").toLowerCase();
+  const canonical = String(venue.canonical || "").toLowerCase();
+  const boost = String(venue.searchBoost || "").toLowerCase();
+
+  if (canonical && name.includes(canonical)) return true;
+  if (boost && name.includes(boost)) return true;
+  if (raw.length > 3 && name.includes(raw)) return true;
+
+  if (raw === "acm" || raw === "acmmm" || raw === "acm mm" || raw === "mm") {
+    return name.includes("acm") && name.includes("multimedia");
+  }
+  return false;
+}
+
+function buildQueryUrl(extra = {}) {
   const query = (document.getElementById("queryInput")?.value || "").trim();
   const scope = document.getElementById("scopeSelect")?.value || "all";
-  const venue = (document.getElementById("venueInput")?.value || "").trim().toLowerCase();
+  const venue = normalizeVenueInput(document.getElementById("venueInput")?.value || "");
   const fromYear = Number(document.getElementById("fromYearInput")?.value || 2022);
   const limit = Number(document.getElementById("limitSelect")?.value || 10);
 
   const params = new URLSearchParams();
-  params.set("search", query);
-  params.set("per-page", String(limit));
+  const searchParts = [query];
+  if (venue.raw && !extra.sourceIds?.length && venue.searchBoost) {
+    searchParts.push(venue.searchBoost);
+  }
+  params.set("search", searchParts.filter(Boolean).join(" "));
+  params.set("per-page", String(extra.perPage || limit));
 
   const filters = [`from_publication_date:${fromYear}-01-01`];
   if (scope === "journal") {
     filters.push("primary_location.source.type:journal");
-  } else if (scope === "conference") {
+  } else if (scope === "conference" || venue.type === "conference") {
     filters.push("primary_location.source.type:conference");
+  } else if (venue.type === "journal") {
+    filters.push("primary_location.source.type:journal");
+  }
+  if (extra.sourceIds?.length) {
+    filters.push(`primary_location.source.id:${extra.sourceIds.join("|")}`);
   }
   params.set("filter", filters.join(","));
 
@@ -67,20 +213,22 @@ function renderResults(works, meta) {
   const listEl = document.getElementById("resultsList");
 
   let filtered = works || [];
-  if (meta.venue) {
-    filtered = filtered.filter(work => {
-      const venueName = work?.primary_location?.source?.display_name || "";
-      return venueName.toLowerCase().includes(meta.venue);
-    });
+  if (meta.venue?.raw) {
+    filtered = filtered.filter(work => matchesVenueName(work, meta.venue));
+    if (filtered.length > meta.limit) {
+      filtered = filtered.slice(0, meta.limit);
+    }
   }
 
   if (!filtered.length) {
-    summaryEl.textContent = "没有找到符合当前筛选条件的论文。";
+    const venueHint = meta.venue?.raw ? `（已将 ${meta.venue.raw} 识别为 ${meta.venue.canonical || meta.venue.raw}）` : "";
+    summaryEl.textContent = `没有找到符合当前筛选条件的论文${venueHint}。`;
     listEl.innerHTML = "";
     return;
   }
 
-  summaryEl.textContent = `已找到 ${filtered.length} 条结果，可按标题、来源和摘要做初筛。`;
+  const venueHint = meta.venue?.raw ? `，来源匹配：${meta.venue.canonical || meta.venue.raw}` : "";
+  summaryEl.textContent = `已找到 ${filtered.length} 条结果${venueHint}，可按标题、来源和摘要做初筛。`;
   listEl.innerHTML = filtered.map(work => {
     const title = work?.title || "Untitled";
     const year = work?.publication_year || "-";
@@ -108,8 +256,8 @@ async function runSearch(prefillQuery = "") {
     queryInput.value = prefillQuery;
   }
 
-  const meta = buildQueryUrl();
-  if (!meta.query) {
+  const firstMeta = buildQueryUrl();
+  if (!firstMeta.query) {
     statusEl.textContent = "先输入研究问题或关键词。";
     return;
   }
@@ -118,6 +266,14 @@ async function runSearch(prefillQuery = "") {
   pageStatusEl.textContent = "检索中";
 
   try {
+    const sourceIds = await resolveVenueSources(firstMeta.venue, firstMeta.scope);
+    const meta = buildQueryUrl({
+      sourceIds: [...new Set([...(firstMeta.venue.sourceIds || []), ...sourceIds])],
+      perPage: firstMeta.venue.raw ? Math.max(firstMeta.limit * 3, 25) : firstMeta.limit
+    });
+    if (meta.venue.raw && meta.venue.canonical) {
+      statusEl.textContent = `正在检索公开论文数据（${meta.venue.raw} → ${meta.venue.canonical}）…`;
+    }
     const response = await fetch(meta.url);
     const data = await response.json();
     const works = Array.isArray(data?.results) ? data.results : [];
